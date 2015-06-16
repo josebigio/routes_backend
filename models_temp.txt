@@ -32,8 +32,8 @@ class Routes(db.Model):
     __tablename__ = 'gtfs_routes'
 
     route_id = db.Column(db.Integer, primary_key=True)
-    #agency_id = db.Column(db.Integer, db.ForeignKey('gtfs_agency.agency_id'), nullable=True)
-    agency_id = db.Column(db.Integer, nullable=True)
+    agency_id = db.Column(db.Integer, db.ForeignKey('gtfs_agency.agency_id'), nullable=True)
+    #agency_id = db.Column(db.Integer, nullable=True)
     route_short_name = db.Column(db.String())
     route_long_name = db.Column(db.String())
     route_desc = db.Column(db.String())
@@ -42,8 +42,8 @@ class Routes(db.Model):
     route_color = db.Column(db.String())
     route_text_color = db.Column(db.String())
 
-    # agency = db.relation(Agency)
-    # trips = db.relation('Trips', lazy='dynamic')
+    agency = db.relation(Agency)
+    trips = db.relation('Trips', lazy='dynamic')
 
     def __repr__(self):
         return '<id {}>'.format(self.route_id)
@@ -72,23 +72,23 @@ class Stops(db.Model):
 class Trips(db.Model):
     __tablename__ = 'gtfs_trips'
 
-    route_id = db.Column(db.Integer, primary_key=True)
-    service_id  = db.Column(db.Integer)
     trip_id = db.Column(db.Integer,  primary_key=True)
-    # route_id = db.Column(db.Integer, db.ForeignKey('gtfs_routes.route_id'), nullable=False)
-    # service_id  = db.Column(db.Integer, db.ForeignKey('gtfs_calendar_dates.service_id'), nullable=False)
+    route_id = db.Column(db.Integer, db.ForeignKey('gtfs_routes.route_id'), nullable=False)
+    service_id  = db.Column(db.Integer, db.ForeignKey('gtfs_calendar_dates.service_id'), nullable=False)
+    #route_id = db.Column(db.Integer)
+    #service_id  = db.Column(db.Integer)
     trip_headsign = db.Column(db.String())
     trip_short_name = db.Column(db.String())
     direction_id = db.Column(db.Integer)
     block_id = db.Column(db.Integer)
-    shape_id = db.Column(db.Integer)
-    #shape_id = db.Column(db.Integer, db.ForeignKey('gtfs_shapes.shape_id'), nullable=True)
+    #shape_id = db.Column(db.Integer)
+    shape_id = db.Column(db.Integer, db.ForeignKey('gtfs_shapes.shape_id'), nullable=True)
     wheelchair_accessible = db.Column(db.Boolean)
     bikes_allowed = db.Column(db.Boolean)
 
-    # route = db.relation(Routes)
-    # service = db.relation(CalendarDates)
-    # stops = db.relation('StopTimes', order_by=lambda: StopTimes.stop_sequence)
+    route = db.relation(Routes)
+    service = db.relation(CalendarDates)
+    stops = db.relation('StopTimes', order_by=lambda: StopTimes.stop_sequence)
 
     def __repr__(self):
         return '<id {}>'.format(self.route_id)
@@ -97,20 +97,20 @@ class Trips(db.Model):
 class StopTimes(db.Model):
     __tablename__ = 'gtfs_stop_times'
 
-    trip_id = db.Column(db.Integer, primary_key=True)
-    #trip_id = db.Column(db.Integer, db.ForeignKey('gtfs_trips.trip_id'), primary_key=True)
+    #trip_id = db.Column(db.Integer, primary_key=True)
+    trip_id = db.Column(db.Integer, db.ForeignKey('gtfs_trips.trip_id'), primary_key=True)
     arrival_time = db.Column(db.String())
     departure_time = db.Column(db.String())
-    stop_id = db.Column(db.Integer, primary_key=True)
-    #stop_id = db.Column(db.Integer, db.ForeignKey('gtfs_stops.stop_id'), primary_key=True)
+    #stop_id = db.Column(db.Integer, primary_key=True)
+    stop_id = db.Column(db.Integer, db.ForeignKey('gtfs_stops.stop_id'), primary_key=True)
     stop_sequence = db.Column(db.Integer, primary_key=True)
     stop_headsign = db.Column(db.String())
     pickup_type = db.Column(db.String())
     drop_off_type = db.Column(db.String())
     shape_dist_traveled = db.Column(db.Float())
 
-    # trip = db.relation(Trips)
-    # stop = db.relation(Stops)
+    trip = db.relation(Trips)
+    stop = db.relation(Stops)
 
     def __repr__(self):
         return '<id {}>'.format(self.trip_id)
@@ -119,10 +119,12 @@ class StopTimes(db.Model):
 class Shapes(db.Model):
     __tablename__ = 'gtfs_shapes'
 
-    shape_id = db.Column(db.Integer, primary_key=True)
+    _id = db.Column(db.Integer, primary_key=True)
+
+    shape_id = db.Column(db.Integer)
     shape_pt_lat = db.Column(db.Float())
     shape_pt_lon = db.Column(db.Float())
-    shape_pt_sequence = db.Column(db.Integer, primary_key=True)
+    shape_pt_sequence = db.Column(db.Integer)
     shape_dist_traveled = db.Column(db.Float())
 
     def __repr__(self):

@@ -25,8 +25,7 @@ def getRoutes():
 	for stop in stops:
 		stopId = stop.stop_id
 		routes = mainProcessor.getRoutesWithStopID(stopId)
-		routeNames = [route.route_id for route in routes]
-		resultDict[stopId] = [routeNames,mainProcessor.getDistance(lat,lng,stop.stop_lat,stop.stop_lon)]
+		resultDict[stopId] = [routes,mainProcessor.getDistance(lat,lng,stop.stop_lat,stop.stop_lon)]
 		
 
 	return jsonify(resultDict)
@@ -52,6 +51,17 @@ def getStopIdsAround():
 	index = 0
 	for stop in result:
 		resultDict[stop.stop_id] = mainProcessor.getDistance(lat,lng,stop.stop_lat,stop.stop_lon)
+
+	return jsonify(resultDict)
+
+@app.route('/api/getstopidsforroute',methods=['GET'])
+def getStopsForRoute():
+	route = request.args.get('route')
+	sql = "SELECT DISTINCT gtfs_stops.stop_id, gtfs_stops.stop_name FROM gtfs_trips INNER JOIN gtfs_stop_times ON gtfs_stop_times.trip_id = gtfs_trips.trip_id INNER JOIN gtfs_stops ON gtfs_stops.stop_id = gtfs_stop_times.stop_id WHERE route_id = " + route + ";"
+	result = db.engine.execute(sql)
+	resultDict = dict()
+	for row in result:
+		resultDict[row[0]] = row[1]
 
 	return jsonify(resultDict)
 	

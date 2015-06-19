@@ -19,7 +19,7 @@ def getRoutes():
 	lat = float(request.args.get('lat'))
 	lng = float(request.args.get('lng'))
 	radius = request.args.get('radius')
-	weekend = int(request.args.get('weekend'))
+	weekday = int(request.args.get('weekday'))
 	limit = int(request.args.get('limit'))
 	time = str(request.args.get('time'))
 
@@ -27,7 +27,7 @@ def getRoutes():
 	resultDict = dict()
 	for stop in stops:
 		stopId = stop.stop_id
-		routes = mainProcessor.getUpcomingRoutesWithStopId(stopId,time,limit,weekend)
+		routes = mainProcessor.getUpcomingRoutesWithStopId(stopId,time,limit,weekday)
 		resultDict[stopId] = [routes,mainProcessor.getDistance(lat,lng,stop.stop_lat,stop.stop_lon)]
 		
 

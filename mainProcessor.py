@@ -32,14 +32,11 @@ def getRoutesWithStopID(stopId):
 
 	return resultList
 
-def getUpcomingRoutesWithStopId(stopId,time,limit,weekend):
+def getUpcomingRoutesWithStopId(stopId,time,limit,weekDayNumber):
 
-	sql = ""
-	if weekend:
-		sql = "SELECT  gtfs_trips.route_id, gtfs_stop_times.arrival_time FROM gtfs_stops INNER JOIN gtfs_stop_times ON gtfs_stop_times.stop_id = gtfs_stops.stop_id INNER JOIN gtfs_trips ON gtfs_trips.trip_id=gtfs_stop_times.trip_id INNER JOIN gtfs_calendar ON gtfs_trips.service_id=gtfs_calendar.service_id WHERE gtfs_stops.stop_id=" + str(stopId) + " and gtfs_stop_times.pickup_type='0' and gtfs_calendar.saturday=1 and gtfs_calendar.sunday=1 and gtfs_calendar.friday=0;"
-	else:
-		sql = "SELECT  gtfs_trips.route_id, gtfs_stop_times.arrival_time FROM gtfs_stops INNER JOIN gtfs_stop_times ON gtfs_stop_times.stop_id = gtfs_stops.stop_id INNER JOIN gtfs_trips ON gtfs_trips.trip_id=gtfs_stop_times.trip_id INNER JOIN gtfs_calendar ON gtfs_trips.service_id=gtfs_calendar.service_id WHERE gtfs_stops.stop_id=" + str(stopId) + " and gtfs_stop_times.pickup_type='0' and gtfs_calendar.saturday=0 and gtfs_calendar.sunday=0 and gtfs_calendar.friday=1;"
-
+	week = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
+	day = week[weekDayNumber]
+	sql = "SELECT  gtfs_trips.route_id, gtfs_stop_times.arrival_time FROM gtfs_stops INNER JOIN gtfs_stop_times ON gtfs_stop_times.stop_id = gtfs_stops.stop_id INNER JOIN gtfs_trips ON gtfs_trips.trip_id=gtfs_stop_times.trip_id INNER JOIN gtfs_calendar ON gtfs_trips.service_id=gtfs_calendar.service_id WHERE gtfs_stops.stop_id=" + str(stopId) + " and gtfs_stop_times.pickup_type='0' and gtfs_calendar." + day + "=1;"
 	result = db.engine.execute(sql)
 	resultList = list()
 	result = db.engine.execute(sql)

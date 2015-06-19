@@ -16,15 +16,18 @@ def hello():
 
 @app.route('/api/getroutes',methods=['GET'])
 def getRoutes():
-	lat = request.args.get('lat')
-	lng = request.args.get('lng')
+	lat = float(request.args.get('lat'))
+	lng = float(request.args.get('lng'))
 	radius = request.args.get('radius')
+	weekend = int(request.args.get('weekend'))
+	limit = int(request.args.get('limit'))
+	time = str(request.args.get('time'))
 
 	stops = mainProcessor.getStopIds(lat,lng,radius)
 	resultDict = dict()
 	for stop in stops:
 		stopId = stop.stop_id
-		routes = mainProcessor.getRoutesWithStopID(stopId)
+		routes = mainProcessor.getUpcomingRoutesWithStopId(stopId,time,limit,weekend)
 		resultDict[stopId] = [routes,mainProcessor.getDistance(lat,lng,stop.stop_lat,stop.stop_lon)]
 		
 

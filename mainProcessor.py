@@ -9,6 +9,13 @@ from app import db
 
 DEBUG = 0
 
+def getSecsFromZero(timeString):
+	timeArr = timeString.split(':')
+	return int(timeArr[0])*3600+int(timeArr[1])*60+int(timeArr[2])
+
+def getSecondsBetweenDates(earlyTime,laterTime):
+	return getSecsFromZero(laterTime)-getSecsFromZero(earlyTime)
+
 def getRouteWithTripId(tripId):
 	trip =  models.Trips.query.filter_by(trip_id=tripId).first()
 	return models.Routes.query.filter_by(route_id=trip.route_id).first()
@@ -17,7 +24,7 @@ def getRouteWithTripId(tripId):
 def getRoutesWithStopID(stopId):
 	stopId = str(stopId)
 
-	sql = "SELECT DISTINCT gtfs_trips.route_id FROM gtfs_stops INNER JOIN gtfs_stop_times ON gtfs_stop_times.stop_id = gtfs_stops.stop_id INNER JOIN gtfs_trips ON gtfs_trips.trip_id=gtfs_stop_times.trip_id WHERE gtfs_stops.stop_id=506;"
+	sql = "SELECT DISTINCT gtfs_trips.route_id FROM gtfs_stops INNER JOIN gtfs_stop_times ON gtfs_stop_times.stop_id = gtfs_stops.stop_id INNER JOIN gtfs_trips ON gtfs_trips.trip_id=gtfs_stop_times.trip_id INNER JOIN gtfs_calendar ON gtfs_trips.trip_id=gtfs_stop_times.trip_id WHERE gtfs_stops.stop_id=" + stopId + " and gtfs_calendar.saturday=0 and gtfs_calendar.sunday=0;"
 	result = db.engine.execute(sql)
 	resultList = list()
 	for column in result:
@@ -25,13 +32,30 @@ def getRoutesWithStopID(stopId):
 
 	return resultList
 
-	# routeIdSet = set()
-	# #stopTimes has all the trips that go stopId
-	# stopTimes = models.StopTimes.query.filter_by(stop_id=stopId).all()
-	# for stopTime in stopTimes:
-	# 	routeIdSet.add(getRouteWithTripId(stopTime.trip_id))
-	
-	# return routeIdSet
+def getUpcomingRoutesWithStopId(stopId,time,limit,weekend):
+
+	sql = ""
+	if weekend:
+		sql = "SELECT  gtfs_trips.route_id, gtfs_stop_times.arrival_time FROM gtfs_stops INNER JOIN gtfs_stop_times ON gtfs_stop_times.stop_id = gtfs_stops.stop_id INNER JOIN gtfs_trips ON gtfs_trips.trip_id=gtfs_stop_times.trip_id INNER JOIN gtfs_calendar ON gtfs_trips.service_id=gtfs_calendar.service_id WHERE gtfs_stops.stop_id=" + str(stopId) + " and gtfs_stop_times.pickup_type='0' and gtfs_calendar.saturday=1 and gtfs_calendar.sunday=1 and gtfs_calendar.friday=0;"
+	else:
+		sql = "SELECT  gtfs_trips.route_id, gtfs_stop_times.arrival_time FROM gtfs_stops INNER JOIN gtfs_stop_times ON gtfs_stop_times.stop_id = gtfs_stops.stop_id INNER JOIN gtfs_trips ON gtfs_trips.trip_id=gtfs_stop_times.trip_id INNER JOIN gtfs_calendar ON gtfs_trips.service_id=gtfs_calendar.service_id WHERE gtfs_stops.stop_id=" + str(stopId) + " and gtfs_stop_times.pickup_type='0' and gtfs_calendar.saturday=0 and gtfs_calendar.sunday=0 and gtfs_calendar.friday=1;"
+
+	result = db.engine.execute(sql)
+	resultList = list()
+	result = db.engine.execute(sql)
+	print(result)
+	sortedResult = sorted(result,key=lambda column:getSecsFromZero(column[1]))
+	resultList = list()
+	for column in sortedResult:
+		secsAway = getSecondsBetweenDates(time,column[1])
+		if secsAway>0:
+			if secsAway>limit:
+				return resultList
+			resultList.append((column[0],column[1]))
+
+
+	return resultList
+
 
 def getDistance(lat1,long1,lat2,long2):
 	loc1 = (lat1,long1)

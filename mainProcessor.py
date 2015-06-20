@@ -48,9 +48,16 @@ def getUpcomingRoutesWithStopId(stopId,time,limit,weekDayNumber):
 		if secsAway>0:
 			if secsAway>limit:
 				return resultList
-			resultList.append((column[0],column[1]))
-
-
+			d = {"route_name":column[0],"arrival_time":column[1]}
+			resultList.append(d)
+		# [{
+		# 	"route_name":100,
+		# 	"arrival_time":"14:33:13"
+		# },
+		# {
+		# 	"route_name":100,
+		# 	"arrival_time":"15:03:13"
+		# }]
 	return resultList
 
 

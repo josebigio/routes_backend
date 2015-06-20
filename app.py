@@ -24,13 +24,15 @@ def getRoutes():
 	time = str(request.args.get('time'))
 
 	stops = mainProcessor.getStopIds(lat,lng,radius)
-	resultDict = dict()
+	resultList = []
 	for stop in stops:
 		stopId = stop.stop_id
 		routes = mainProcessor.getUpcomingRoutesWithStopId(stopId,time,limit,weekday)
-		resultDict[stopId] = [routes,mainProcessor.getDistance(lat,lng,stop.stop_lat,stop.stop_lon)]
+		distance = mainProcessor.getDistance(lat,lng,stop.stop_lat,stop.stop_lon)
+		d = {"stop_id":stopId, "routes":routes,"distance":distance}
+		resultList.append(d)
 		
-
+	resultDict = {"stops":resultList}
 	return jsonify(resultDict)
 
 @app.route('/api/getroutesusingstopid',methods=['GET'])

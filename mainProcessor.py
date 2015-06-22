@@ -34,8 +34,8 @@ def getRoutesWithStopID(stopId):
 
 def getUpcomingRoutesWithStopId(stopId,time,limit,weekDayNumber):
 
-	week = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
-	day = week[weekDayNumber]
+	week = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
+	day = week[weekDayNumber-1]
 	sql = "SELECT  gtfs_trips.route_id, gtfs_stop_times.arrival_time, gtfs_trips.trip_headsign FROM gtfs_stops INNER JOIN gtfs_stop_times ON gtfs_stop_times.stop_id = gtfs_stops.stop_id INNER JOIN gtfs_trips ON gtfs_trips.trip_id=gtfs_stop_times.trip_id INNER JOIN gtfs_calendar ON gtfs_trips.service_id=gtfs_calendar.service_id WHERE gtfs_stops.stop_id=" + str(stopId) + " and gtfs_stop_times.pickup_type='0' and gtfs_calendar." + day + "=1;"
 	result = db.engine.execute(sql)
 	resultList = list()

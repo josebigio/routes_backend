@@ -29,7 +29,7 @@ def getRoutes():
 		stopId = stop.stop_id
 		routes = mainProcessor.getUpcomingRoutesWithStopId(stopId,time,limit,weekday)
 		distance = mainProcessor.getDistance(lat,lng,stop.stop_lat,stop.stop_lon)
-		d = {"stop_id":stopId, "routes":routes,"distance":distance}
+		d = {"stop_id":stopId, "routes":routes,"distance":distance,"lat":stop.stop_lat,"lng":stop.stop_lon}
 		resultList.append(d)
 		
 	resultDict = {"stops":resultList}

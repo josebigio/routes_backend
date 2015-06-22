@@ -36,7 +36,7 @@ def getUpcomingRoutesWithStopId(stopId,time,limit,weekDayNumber):
 
 	week = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
 	day = week[weekDayNumber]
-	sql = "SELECT  gtfs_trips.route_id, gtfs_stop_times.arrival_time FROM gtfs_stops INNER JOIN gtfs_stop_times ON gtfs_stop_times.stop_id = gtfs_stops.stop_id INNER JOIN gtfs_trips ON gtfs_trips.trip_id=gtfs_stop_times.trip_id INNER JOIN gtfs_calendar ON gtfs_trips.service_id=gtfs_calendar.service_id WHERE gtfs_stops.stop_id=" + str(stopId) + " and gtfs_stop_times.pickup_type='0' and gtfs_calendar." + day + "=1;"
+	sql = "SELECT  gtfs_trips.route_id, gtfs_stop_times.arrival_time, gtfs_trips.trip_headsign FROM gtfs_stops INNER JOIN gtfs_stop_times ON gtfs_stop_times.stop_id = gtfs_stops.stop_id INNER JOIN gtfs_trips ON gtfs_trips.trip_id=gtfs_stop_times.trip_id INNER JOIN gtfs_calendar ON gtfs_trips.service_id=gtfs_calendar.service_id WHERE gtfs_stops.stop_id=" + str(stopId) + " and gtfs_stop_times.pickup_type='0' and gtfs_calendar." + day + "=1;"
 	result = db.engine.execute(sql)
 	resultList = list()
 	result = db.engine.execute(sql)
@@ -48,15 +48,17 @@ def getUpcomingRoutesWithStopId(stopId,time,limit,weekDayNumber):
 		if secsAway>0:
 			if secsAway>limit:
 				return resultList
-			d = {"route_name":column[0],"arrival_time":column[1]}
+			d = {"route_name":column[0],"arrival_time":column[1], "headsign":column[2]}
 			resultList.append(d)
 		# [{
 		# 	"route_name":100,
 		# 	"arrival_time":"14:33:13"
+		#	"headsign":"2-Rosewood-EB"
 		# },
 		# {
 		# 	"route_name":100,
 		# 	"arrival_time":"15:03:13"
+		#	"headsign":"2-Rosewood-EB"
 		# }]
 	return resultList
 

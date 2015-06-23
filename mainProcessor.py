@@ -81,7 +81,8 @@ def getPolylineCoordinatesWithStopId(stopId,time,limit,weekDayNumber):
 				shapeDict = {"lat":shapeSpot.shape_pt_lat,"lng":shapeSpot.shape_pt_lon,"sequence":shapeSpot.shape_pt_sequence,"distance_traveled":shapeSpot.shape_dist_traveled,"shape_id":shapeSpot.shape_id}
 				coordinates.append(shapeDict)
 
-			d = {"route_name":column[0],"arrival_time":column[1], "headsign":column[2],"coordinates":coordinates}
+			color = models.Routes.query.filter_by(route_id=column[0]).first().route_color
+			d = {"route_name":column[0],"arrival_time":column[1], "headsign":column[2],"coordinates":coordinates,"color":color}
 			resultList.append(d)
 	
 

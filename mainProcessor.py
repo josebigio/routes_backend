@@ -124,7 +124,7 @@ def getAllStops():
 	stops = models.Stops.query.all()
 	resultList = list()
 	for stop in stops:
-		d = {"stop_id":stop.stop_id, "routes":None,"distance":None,"lat":stop.stop_lat,"lng":stop.stop_lon, "data":0}
+		d = {"stop_id":stop.stop_id, "routes":None,"distance":None,"lat":stop.stop_lat,"lng":stop.stop_lon, "data":False}
 		resultList.append(d)
 	return resultList
 		

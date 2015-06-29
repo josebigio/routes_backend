@@ -9,6 +9,7 @@ from app import db
 
 DEBUG = 0
 
+#HELPERS
 def getFullDayName(weekDayNumber):
 	week = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
 	return week[weekDayNumber-1]
@@ -36,8 +37,13 @@ def getRoutesWithStopID(stopId):
 
 	return resultList
 
-def getUpcomingRoutesWithStopId(stopId,time,limit,weekDayNumber):
+#IN USE
+def getDistance(lat1,long1,lat2,long2):
+	loc1 = (lat1,long1)
+	loc2 = (lat2,long2)
+	return vincenty(loc1, loc2).miles
 
+def getUpcomingRoutesWithStopId(stopId,time,limit,weekDayNumber):
 	day = getFullDayName(weekDayNumber)
 	sql = "SELECT  gtfs_trips.route_id, gtfs_stop_times.arrival_time, gtfs_trips.trip_headsign FROM gtfs_stops INNER JOIN gtfs_stop_times ON gtfs_stop_times.stop_id = gtfs_stops.stop_id INNER JOIN gtfs_trips ON gtfs_trips.trip_id=gtfs_stop_times.trip_id INNER JOIN gtfs_calendar ON gtfs_trips.service_id=gtfs_calendar.service_id WHERE gtfs_stops.stop_id=" + str(stopId) + " and gtfs_stop_times.pickup_type='0' and gtfs_calendar." + day + "=1;"
 	result = db.engine.execute(sql)
@@ -62,6 +68,7 @@ def getUpcomingRoutesWithStopId(stopId,time,limit,weekDayNumber):
 		# }]
 	return resultList
 
+#IN USE
 def getPolylineCoordinatesWithStopId(stopId,time,limit,weekDayNumber):
 	day = getFullDayName(weekDayNumber)
 	sql = "SELECT  gtfs_trips.route_id, gtfs_stop_times.arrival_time, gtfs_trips.trip_headsign, gtfs_trips.shape_id FROM gtfs_stops INNER JOIN gtfs_stop_times ON gtfs_stop_times.stop_id = gtfs_stops.stop_id INNER JOIN gtfs_trips ON gtfs_trips.trip_id=gtfs_stop_times.trip_id INNER JOIN gtfs_calendar ON gtfs_trips.service_id=gtfs_calendar.service_id WHERE gtfs_stops.stop_id=" + str(stopId) + " and gtfs_stop_times.pickup_type='0' and gtfs_calendar." + day + "=1;"
@@ -87,10 +94,6 @@ def getPolylineCoordinatesWithStopId(stopId,time,limit,weekDayNumber):
 	
 
 
-def getDistance(lat1,long1,lat2,long2):
-	loc1 = (lat1,long1)
-	loc2 = (lat2,long2)
-	return vincenty(loc1, loc2).miles
 	
 
 def getRoutes(lat, lng, radius):
@@ -102,7 +105,7 @@ def getRoutes(lat, lng, radius):
 
 	return resultList
 		
-
+#IN USE
 def getStopIds(lat, lng, radius):
 	
 	result = models.Stops.query.all()
@@ -116,5 +119,14 @@ def getStopIds(lat, lng, radius):
 
 	
 	return resultList
+
+def getAllStops():
+	stops = models.Stops.query.all()
+	resultList = list()
+	for stop in stops:
+		d = {"stop_id":stop.stop_id, "routes":None,"distance":None,"lat":stop.stop_lat,"lng":stop.stop_lon, "data":0}
+		resultList.append(d)
+	return resultList
+		
 
 

@@ -35,6 +35,7 @@ def getRoutes():
 	resultDict = {"stops":resultList}
 	return jsonify(resultDict)
 
+#IN USE
 @app.route('/api/getroutesandcoordinates',methods=['GET'])
 def getRoutesAndCoordinates():
 	lat = float(request.args.get('lat'))
@@ -50,10 +51,15 @@ def getRoutesAndCoordinates():
 		stopId = stop.stop_id
 		routes = mainProcessor.getPolylineCoordinatesWithStopId(stopId,time,limit,weekday)
 		distance = mainProcessor.getDistance(lat,lng,stop.stop_lat,stop.stop_lon)
-		d = {"stop_id":stopId, "routes":routes,"distance":distance,"lat":stop.stop_lat,"lng":stop.stop_lon}
+		d = {"stop_id":stopId, "routes":routes,"distance":distance,"lat":stop.stop_lat,"lng":stop.stop_lon,"data":1}
 		resultList.append(d)
 		
 	resultDict = {"stops":resultList}
+	return jsonify(resultDict)
+
+@app.route('/api/getallstops',methods=['GET'])
+def getAllStops():
+	resultDict = {"stops":mainProcessor.getAllStops()}
 	return jsonify(resultDict)
 
 @app.route('/api/getroutesusingstopid',methods=['GET'])

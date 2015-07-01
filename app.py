@@ -104,7 +104,7 @@ def getStopsForRouteHeadsign():
 	result = db.engine.execute(sql)
 	stopList = list()
 	for row in result:
-		routes = mainProcessor.getUpcomingRoutesWithStopId(row[0],time,limit,weekday)
+		routes = mainProcessor.getPolylineCoordinatesWithStopId(row[0],time,limit,weekday)
 		d = {"stop_id":row[0], "routes":routes,"distance":None,"lat":row[1],"lng":row[2],"data":True}
 		stopList.append(d)
 

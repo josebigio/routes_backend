@@ -86,8 +86,8 @@ def getStopIdsAround():
 
 	return jsonify(resultDict)
 
-@app.route('/api/getstopsforroutes',methods=['GET'])
-def getStopsForRouteHeadsign():
+@app.route('/api/getfullstopsforroutes',methods=['GET'])
+def getFullStopsForRouteHeadsign():
 	headsignsString = str(request.args.get('headsigns'))
 	weekday = int(request.args.get('weekday'))
 	limit = int(request.args.get('limit'))
@@ -106,6 +106,30 @@ def getStopsForRouteHeadsign():
 	for row in result:
 		routes = mainProcessor.getPolylineCoordinatesWithStopId(row[0],time,limit,weekday)
 		d = {"stop_id":row[0], "routes":routes,"distance":None,"lat":row[1],"lng":row[2],"data":True}
+		stopList.append(d)
+
+	return jsonify({"stops":stopList})
+
+@app.route('/api/getnakedstopsforroutes',methods=['GET'])
+def getNakedStopsForRouteHeadsign():
+	headsignsString = str(request.args.get('headsigns'))
+	weekday = int(request.args.get('weekday'))
+	limit = int(request.args.get('limit'))
+	time = str(request.args.get('time'))
+
+	headSignsList = headsignsString.split(',')
+	headSignQueryString = "trip_headsign='" + headSignsList[0] + "'"
+	for headsign in headSignsList[1:]:
+		headSignQueryString = headSignQueryString + " OR trip_headsign='" + headsign + "'"
+
+	print(headSignQueryString)
+
+	sql = "SELECT DISTINCT gtfs_stops.stop_id, gtfs_stops.stop_lat, gtfs_stops.stop_lon FROM gtfs_trips INNER JOIN gtfs_stop_times ON gtfs_stop_times.trip_id = gtfs_trips.trip_id INNER JOIN gtfs_stops ON gtfs_stops.stop_id = gtfs_stop_times.stop_id WHERE " + headSignQueryString + ";"
+	result = db.engine.execute(sql)
+	stopList = list()
+	for row in result:
+		routes = mainProcessor.getUpcomingRoutesWithStopId(row[0],time,limit,weekday)
+		d = {"stop_id":row[0], "routes":routes,"distance":None,"lat":row[1],"lng":row[2],"data":False}
 		stopList.append(d)
 
 	return jsonify({"stops":stopList})
